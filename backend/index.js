@@ -15,6 +15,15 @@ MongoClient.connect('mongodb://localhost:27017/', {
     db = client.db('beadando')
 })
 
+app.post('/',
+    (req, res) => {
+        console.log(req.body)
+        db.collection('sample_collection').insertOne(req.body, data => {
+            res.send(data)
+        })
+    }
+)
+
 app.get('/',
     (req, res) =>
     res.send('Hello World!')
