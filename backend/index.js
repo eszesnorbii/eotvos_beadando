@@ -15,18 +15,61 @@ MongoClient.connect('mongodb://localhost:27017/', {
     db = client.db('beadando')
 })
 
-app.post('/',
+app.post('/:id',
     (req, res) => {
-        console.log(req.body)
-        db.collection('sample_collection').insertOne(req.body, data => {
+        db.collection(req.params.id).insertOne(req.body.item, data => {
             res.send(data)
+            const date = new Date()
+            console.log(
+                "succesfully post operation at",
+                date.getHours(),
+                ": ",
+                date.getMinutes()
+            )
         })
     }
 )
 
-app.get('/',
-    (req, res) =>
-    res.send('Hello World!')
+app.get('/:id',
+    (req, res) => {
+        db.collection(req.params.id).find().toArray((err, data) => {
+            res.send(data)
+            const date = new Date()
+            console.log(
+                "succesfully get operation at",
+                date.getHours(),
+                ": ",
+                date.getMinutes()
+            )
+        })
+    }
 )
 
-app.listen(8082)
+app.delete('/:id',
+    (req, res) => {
+        console.log(req.params.id)
+        db.collection("shopping_cart").deleteOne({_id: req.params.id}), ((err, data) => {
+            const date = new Date()
+            console.log(
+                "succesfully delete operation at",
+                date.getHours(),
+                ": ",
+                date.getMinutes()
+            )
+            db.close()
+        })
+    }
+)
+
+function start(port) {
+    if (app.listen(port)) {
+        const date = new Date()
+        console.log('Web server started listening on http://localhost:8082 at',
+            date.getHours(),
+            ":",
+            date.getMinutes())
+
+    }
+}
+
+start(8082)
