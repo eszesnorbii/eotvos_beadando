@@ -47,8 +47,7 @@ app.get('/:id',
 
 app.delete('/:id',
     (req, res) => {
-        console.log(req.params.id)
-        db.collection("shopping_cart").deleteOne({_id: req.params.id}), ((err, data) => {
+        db.collection("shopping_cart").deleteOne({_id: req.params.id}), ( () => {
             const date = new Date()
             console.log(
                 "succesfully delete operation at",
