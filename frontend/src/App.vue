@@ -11,15 +11,18 @@
     </div>
     <h1 style="text-align: center;">{{selectedPage}}</h1>
     <template v-if="selectedPage=='Kezdőoldal'">
+      <div class="centralizedMessage">Üdvözöllek!</div>
+    </template>
+    <template v-if="selectedPage=='Böngészés'">
       <table>
         <tr>
-          <td :key="i" v-for="(row,i) in menuButtons[0].tableRowNames">{{row}}</td>
+          <td :key="i" v-for="(row,i) in menuButtons[1].tableRowNames">{{row}}</td>
         </tr>
         <tr :key="i" v-for="(row,i) in products">
           <td>{{row.name}}</td>
           <td>{{row.price}} {{currency}}</td>
           <td>
-            <button @click="addToShoopingCart(row)">
+            <button @click="addToShoopingCart(row)" v-if="shoppingCartChecker(row)">
               <img src="./assets/shopping-cart.png">
             </button>
           </td>
@@ -30,7 +33,7 @@
       <div v-if="shoppingCart[0]">
         <table>
           <tr>
-            <td :key="i" v-for="(row,i) in menuButtons[1].tableRowNames">{{row}}</td>
+            <td :key="i" v-for="(row,i) in menuButtons[2].tableRowNames">{{row}}</td>
           </tr>
           <tr :key="i" v-for="(row,i) in shoppingCart">
             <td>{{row.name}}</td>
@@ -43,9 +46,7 @@
           </tr>
         </table>
       </div>
-      <div v-else class="noDataMessage">
-        Nincs adat!
-      </div>
+      <div v-else class="centralizedMessage">Nincs adat!</div>
     </template>
   </div>
 </template>
@@ -59,7 +60,10 @@ export default {
       pageName: "Web$$$hop Jah",
       menuButtons: [
         {
-          name: "Kezdőoldal",
+          name: "Kezdőoldal"
+        },
+        {
+          name: "Böngészés",
           tableRowNames: ["Termék megnevezése", "Ára", "Kosárba rakás"]
         },
         {
@@ -76,8 +80,9 @@ export default {
   methods: {
     selectPage(pageName) {
       this.selectedPage = pageName;
-      if (this.selectedPage == "Kezdőoldal") {
+      if (this.selectedPage == "Böngészés") {
         this.getProducts();
+        this.getShoppingCart();
       } else if (this.selectedPage == "Kosár") {
         this.getShoppingCart();
       }
@@ -95,14 +100,23 @@ export default {
     addToShoopingCart(item) {
       this.axios
         .post("http://localhost:8082/shopping_cart", { item: item })
-        .then(() => {});
+        .then(() => {
+          this.selectPage("Böngészés");
+        });
     },
     deleteFromShoopingCart(item) {
       this.axios.delete("http://localhost:8082/" + item._id).then(() => {});
       setTimeout(() => {
-        console.log("setTImeout");
         this.getShoppingCart();
       }, 500);
+    },
+    shoppingCartChecker(item) {
+      for (let i = 0; i < this.shoppingCart.length; i++) {
+        if (this.shoppingCart[i]._id == item._id) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 };
@@ -145,7 +159,7 @@ table td {
   color: black;
 }
 
-.noDataMessage {
+.centralizedMessage {
   text-align: center;
   font-size: 200%;
 }
